@@ -18,3 +18,9 @@ pip-selfcheck.json
 *.log
 *.tmp
 *.swp
+
+# Node.js
+node_modules/
+dist/
+build/
+.env*

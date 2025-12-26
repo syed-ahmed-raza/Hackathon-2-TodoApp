@@ -1,59 +1,25 @@
-# Python To-Do List CLI
+# Hackathon II: Full-Stack To-Do Application
 
-This is a simple but powerful command-line interface (CLI) application for managing your to-do list.
+This project is a full-stack to-do list application built for Phase II of the hackathon. It features a Next.js frontend, a FastAPI backend, and a PostgreSQL database.
 
-## Features
+## Architecture
 
-- Add, update, remove, and list tasks.
-- Mark tasks as complete or to-do.
-- Clean, user-friendly interface powered by `rich`.
+This project follows a monorepo structure:
 
-## Prerequisites
+-   `/frontend`: Contains the Next.js 16+ (App Router) and Tailwind CSS client-side application.
+-   `/backend`: Contains the Python FastAPI server, using SQLModel as the ORM.
 
-- Python 3.7+
+## Tech Stack
 
-## Setup
+-   **Frontend:** Next.js, React, Tailwind CSS
+-   **Backend:** Python, FastAPI, SQLModel
+-   **Database:** Neon Serverless Postgres (production), SQLite (local development)
+-   **Development Process:** Spec-Driven Development (SDD)
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
+## Getting Started
 
-2.  **Create a virtual environment:**
-    ```bash
-    python -m venv .venv
-    ```
+> **Note:** Detailed setup instructions for the frontend and backend are located in their respective `README.md` files inside the `/frontend` and `/backend` directories.
 
-3.  **Activate the virtual environment:**
-    - On Windows:
-      ```bash
-      .venv\Scripts\activate
-      ```
-    - On macOS/Linux:
-      ```bash
-      source .venv/bin/activate
-      ```
-
-4.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## How to Run
-
-With the virtual environment activated, run the application with:
-
-```bash
-python main.py
-```
-
-## Available Commands
-
-- `list`: Show all tasks
-- `add <title> <description>`: Add a new task
-- `update <id> <title> <description>`: Update a task
-- `complete <id>`: Toggle a task's status
-- `remove <id>`: Remove a task
-- `help`: Show the help menu
-- `exit`: Exit the application
+1.  **Clone the repository.**
+2.  **Set up the backend:** Follow the instructions in `backend/README.md`.
+3.  **Set up the frontend:** Follow the instructions in `frontend/README.md`.
