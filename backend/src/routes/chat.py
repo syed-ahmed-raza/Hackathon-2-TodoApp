@@ -35,16 +35,16 @@ async def chat_agent(
         # Check if a task with the exact same title (case-insensitive, trimmed) already exists
         for task in existing_tasks:
             if task.title.strip().lower() == cleaned_new_title:
-                return "Error: A task with this exact title already exists."
+                return "Info: A task with this name already exists."
         
         # Original check for recently created tasks (within 2 seconds)
         if get_recent_task_by_title(db, title, current_user_id):
-            return "Error: A task with this exact title already exists."
+            return "Info: A task with this name already exists."
         
         # Use the provided description or an empty string if none
         final_description = description if description else ""
         create_task(db, title, final_description, current_user_id)
-        return f"Success: Task '{title}' added with description '{final_description}'." if final_description else f"Success: Task '{title}' added."
+        return "Success: Task added."
 
     def delete_my_task(task_identifier: str):
         """Deletes a task by its ID or a case-insensitive name search."""
@@ -110,6 +110,8 @@ async def chat_agent(
    - **Adding:** Call `add_my_task` first. Then say: "Done! ✅ I've added '[Task Name]'."
    - **Deleting:** Call `delete_my_task` with the NAME. Then say: "Deleted '[Task Name]' 🗑️."
    - **Listing:** Call `get_my_tasks`.
+4. **Error Handling:** If a task isn't found, be kind. Example: "Oops! 😅 I couldn't find a task with that name."
+   - If the tool returns 'Info: A task with this name already exists', tell the user nicely that the task is already on their list (in their preferred language).
 
 **Tools:**
 - Use `add_my_task`, `delete_my_task`, and `get_my_tasks`.
