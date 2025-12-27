@@ -21,15 +21,25 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-    } else {
-      fetchTasks();
-    }
-  }, [router]);
-
+      useEffect(() => {
+          const token = localStorage.getItem('token');
+          if (!token) {
+              router.push('/login');
+          } else {
+              fetchTasks();
+          }
+  
+          // Listen for updates from ChatWidget
+          const handleTaskUpdate = () => {
+              console.log("🔔 Chatbot triggered task refresh!");
+              fetchTasks();
+          };
+  
+          window.addEventListener('taskUpdated', handleTaskUpdate);
+  
+          // Cleanup on unmount
+          return () => window.removeEventListener('taskUpdated', handleTaskUpdate);
+      }, [router]);
   const fetchTasks = async () => {
     try {
       const response = await getTasks();

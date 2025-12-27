@@ -18,8 +18,62 @@ This project follows a monorepo structure:
 
 ## Getting Started
 
-> **Note:** Detailed setup instructions for the frontend and backend are located in their respective `README.md` files inside the `/frontend` and `/backend` directories.
+To get the application up and running, follow these steps:
 
-1.  **Clone the repository.**
-2.  **Set up the backend:** Follow the instructions in `backend/README.md`.
-3.  **Set up the frontend:** Follow the instructions in `frontend/README.md`.
+### Prerequisites
+
+-   Python 3.11+
+-   Node.js 20+
+-   `uv` (or `pip`) for Python package management
+-   `npm` or `yarn` for Node.js package management
+
+### 1. Clone the repository
+
+```bash
+git clone <repository_url>
+cd hackathon-2-todo-list # Replace with your repository name
+```
+
+### 2. Backend Setup (FastAPI)
+
+1.  Navigate to the `backend` directory:
+    ```bash
+    cd backend
+    ```
+
+2.  Create and activate a virtual environment:
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+    ```
+
+3.  Install dependencies:
+    ```bash
+    uv pip install -r requirements.txt
+    ```
+
+4.  Run the development server:
+    ```bash
+    uvicorn src.main:app --reload
+    ```
+
+The backend API will be available at `http://127.0.0.1:8000`.
+
+### 3. Frontend Setup (Next.js)
+
+1.  Navigate to the `frontend` directory:
+    ```bash
+    cd frontend
+    ```
+
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+
+3.  Run the development server:
+    ```bash
+    npm run dev
+    ```
+
+The frontend application will be available at `http://localhost:3000`.

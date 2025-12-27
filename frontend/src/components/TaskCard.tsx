@@ -1,6 +1,8 @@
 
 'use client';
 
+import { FaCheck, FaPencilAlt, FaTrash } from 'react-icons/fa';
+
 interface Task {
   id: number;
   title: string;
@@ -16,41 +18,53 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task, onUpdate, onDelete, onEdit }: TaskCardProps) {
+  const cardClasses = `
+    bg-gray-800/50 backdrop-blur-lg rounded-xl shadow-lg p-5 text-white 
+    transform hover:-translate-y-1 transition-all duration-300
+    border border-transparent
+    ${!task.completed ? 'hover:shadow-purple-500/30' : 'hover:shadow-green-500/20'}
+  `;
+
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl shadow-lg p-6 text-white transform hover:-translate-y-1 transition-transform duration-300">
+    <div className={cardClasses}>
       <div className="flex justify-between items-start">
-        <div>
+        <div className="flex-grow">
           <h3 className="text-xl font-bold">{task.title}</h3>
-          <p className="mt-2 text-gray-300">{task.description}</p>
+          <p className="mt-2 text-gray-400 text-sm">
+            {task.description ? task.description : <span className="text-gray-500">No description provided</span>}
+          </p>
         </div>
         <span
-          className={`px-2 py-1 text-xs font-semibold rounded-full ${
-            task.completed ? 'bg-green-500/70' : 'bg-yellow-500/70'
+          className={`ml-4 px-2.5 py-1 text-xs font-bold rounded-full ${
+            task.completed ? 'bg-green-500/20 text-green-300' : 'bg-purple-500/20 text-purple-300'
           }`}
         >
-          {task.completed ? 'Done' : 'Pending'}
+          {task.completed ? 'COMPLETED' : 'PENDING'}
         </span>
       </div>
-      <div className="mt-4 flex justify-end space-x-2">
+      <div className="mt-4 flex justify-end items-center space-x-3">
         {!task.completed && (
           <button
             onClick={() => onUpdate(task.id, { completed: true })}
-            className="px-3 py-1 text-sm text-white bg-green-500/70 rounded-full hover:bg-green-600/70"
+            className="p-2 rounded-full text-gray-400 hover:bg-green-500/20 hover:text-green-300 transition-colors"
+            aria-label="Complete Task"
           >
-            ✅ Complete
+            <FaCheck />
           </button>
         )}
         <button
             onClick={() => onEdit(task)}
-            className="px-3 py-1 text-sm text-white bg-blue-500/70 rounded-full hover:bg-blue-600/70"
+            className="p-2 rounded-full text-gray-400 hover:bg-blue-500/20 hover:text-blue-300 transition-colors"
+            aria-label="Edit Task"
         >
-            ✏️ Edit
+            <FaPencilAlt />
         </button>
         <button
           onClick={() => onDelete(task.id)}
-          className="px-3 py-1 text-sm text-white bg-red-500/70 rounded-full hover:bg-red-600/70"
+          className="p-2 rounded-full text-gray-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+          aria-label="Delete Task"
         >
-          🗑️ Delete
+          <FaTrash />
         </button>
       </div>
     </div>
