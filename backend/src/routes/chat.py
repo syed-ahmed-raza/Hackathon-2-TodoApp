@@ -24,8 +24,8 @@ async def chat_agent(
     current_user_id: int = Depends(get_current_user_id)
 ):
     # --- Tool Definitions ---
-    def add_my_task(title: str):
-        """Adds a new task to the user's list. Be concise."""
+    def add_my_task(title: str, description: str = ""):
+        """Adds a new task to the user's list with an optional description. Be concise."""
         # Clean and normalize the new title for comparison
         cleaned_new_title = title.strip().lower()
 
@@ -41,8 +41,10 @@ async def chat_agent(
         if get_recent_task_by_title(db, title, current_user_id):
             return "Error: A task with this exact title already exists."
         
-        create_task(db, title, "Pending", current_user_id)
-        return f"Success: Task '{title}' added."
+        # Use the provided description or an empty string if none
+        final_description = description if description else ""
+        create_task(db, title, final_description, current_user_id)
+        return f"Success: Task '{title}' added with description '{final_description}'." if final_description else f"Success: Task '{title}' added."
 
     def delete_my_task(task_identifier: str):
         """Deletes a task by its ID or a case-insensitive name search."""
