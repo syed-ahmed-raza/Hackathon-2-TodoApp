@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
-const nextConfig: any = {
-  output: 'export',
-  images: { unoptimized: true },
-  trailingSlash: true,  
+const nextConfig: NextConfig = {
+  /* config options here */
 };
 
 export default nextConfig;
