@@ -5,9 +5,11 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
-import models
-from models import User
-from database import get_db
+
+# Inhe change karein:
+from .. import models
+from ..models import User
+from ..database import get_db
 
 SECRET_KEY = "your-super-secret-key"  # TODO: Move to environment variable
 ALGORITHM = "HS256"
