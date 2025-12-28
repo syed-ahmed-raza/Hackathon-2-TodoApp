@@ -9,11 +9,13 @@
       "use": "@vercel/next"
     }
   ],
-  "rewrites": [
-    { "source": "/auth/:path*", "destination": "/backend/src/main.py" },
-    { "source": "/tasks/:path*", "destination": "/backend/src/main.py" },
-    { "source": "/chat/:path*", "destination": "/backend/src/main.py" },
-    { "source": "/openapi.json", "destination": "/backend/src/main.py" },
-    { "source": "/docs", "destination": "/backend/src/main.py" }
+  "routes": [
+    { "src": "/auth/(.*)", "dest": "/backend/src/main.py" },
+    { "src": "/tasks/(.*)", "dest": "/backend/src/main.py" },
+    { "src": "/chat/(.*)", "dest": "/backend/src/main.py" },
+    { "src": "/openapi.json", "dest": "/backend/src/main.py" },
+    { "src": "/docs", "dest": "/backend/src/main.py" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/frontend/$1" }
   ]
 }
