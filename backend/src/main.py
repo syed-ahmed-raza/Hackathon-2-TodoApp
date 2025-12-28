@@ -14,7 +14,8 @@ origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    # allow_origins hata dein ya comment kar dein
+    allow_origin_regex="https://.*\.vercel\.app",  # <--- Yeh Jadoo karega (Sab Vercel links allowed)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
