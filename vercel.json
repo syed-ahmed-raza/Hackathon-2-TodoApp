@@ -1,7 +1,7 @@
 {
   "builds": [
     {
-      "src": "backend/src/main.py",
+      "src": "main.py",
       "use": "@vercel/python"
     },
     {
@@ -10,11 +10,11 @@
     }
   ],
   "routes": [
-    { "src": "/auth/(.*)", "dest": "/backend/src/main.py" },
-    { "src": "/tasks/(.*)", "dest": "/backend/src/main.py" },
-    { "src": "/chat/(.*)", "dest": "/backend/src/main.py" },
-    { "src": "/openapi.json", "dest": "/backend/src/main.py" },
-    { "src": "/docs", "dest": "/backend/src/main.py" },
+    { "src": "/auth/(.*)", "dest": "/main.py" },
+    { "src": "/tasks/(.*)", "dest": "/main.py" },
+    { "src": "/chat/(.*)", "dest": "/main.py" },
+    { "src": "/openapi.json", "dest": "/main.py" },
+    { "src": "/docs", "dest": "/main.py" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/frontend/$1" }
   ]
