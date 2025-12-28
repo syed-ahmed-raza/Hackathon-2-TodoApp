@@ -1,8 +1,20 @@
 {
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/backend/src/main.py"
+      "src": "backend/src/main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "out" }
     }
+  ],
+  "rewrites": [
+    { "source": "/auth/:path*", "destination": "/backend/src/main.py" },
+    { "source": "/tasks/:path*", "destination": "/backend/src/main.py" },
+    { "source": "/chat/:path*", "destination": "/backend/src/main.py" },
+    { "source": "/openapi.json", "destination": "/backend/src/main.py" },
+    { "source": "/docs", "destination": "/backend/src/main.py" }
   ]
 }
