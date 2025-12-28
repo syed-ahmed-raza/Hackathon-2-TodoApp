@@ -1,1 +1,9 @@
-rich
+fastapi
+uvicorn
+sqlmodel
+psycopg2-binary
+python-multipart
+requests
+openai
+python-dotenv
+mcp
