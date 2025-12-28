@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routes import auth, tasks, chat
-from database import create_db_and_tables
+from .routes import auth, tasks, chat
+from .database import create_db_and_tables
 
 load_dotenv()
 
