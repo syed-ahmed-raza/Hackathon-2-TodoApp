@@ -2,8 +2,8 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 import models
-from auth import get_current_user
-from database import get_db
+from ..auth import get_current_user
+from ..database import get_db
 
 router = APIRouter(
     prefix="/tasks",

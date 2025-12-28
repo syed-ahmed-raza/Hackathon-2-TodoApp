@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from database import get_db
-from auth import get_current_user_id
-from crud import create_task, get_tasks, delete_task, get_recent_task_by_title, update_task
+from ..database import get_db
+from ..auth import get_current_user_id
+from ..crud import create_task, get_tasks, delete_task, get_recent_task_by_title, update_task
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
