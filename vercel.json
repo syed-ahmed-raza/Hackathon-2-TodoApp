@@ -1,21 +1,4 @@
 {
-  "builds": [
-    {
-      "src": "main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    { "src": "/auth/(.*)", "dest": "/main.py" },
-    { "src": "/tasks/(.*)", "dest": "/main.py" },
-    { "src": "/chat/(.*)", "dest": "/main.py" },
-    { "src": "/openapi.json", "dest": "/main.py" },
-    { "src": "/docs", "dest": "/main.py" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/frontend/$1" }
-  ]
+  "builds": [{"src": "main.py", "use": "@vercel/python"}],
+  "routes": [{"src": "/(.*)", "dest": "main.py"}]
 }

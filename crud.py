@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 from typing import Optional, List
-from .models import Task, User
+from models import Task, User
 from datetime import datetime, timedelta
 
 def get_recent_task_by_title(db: Session, title: str, user_id: int) -> Optional[Task]:
