@@ -1,36 +1,37 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
-import security, models  
+import security, models  # ✅ Humne security.py use kiya hai
 from database import get_db
 
 router = APIRouter(
     tags=["auth"],
 )
 
-# 👇 FIX: Wapas OAuth2PasswordRequestForm laga diya (Frontend Form Data bhej raha hai)
+# 👇 SIGNUP: Ab yeh JSON accept karega (Fixed 422 Error)
 @router.post("/signup")
-def signup(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # Note: Frontend 'email' bhej raha hai, lekin Form Data mein wo 'username' field mein aata hai
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
+def signup(user_data: models.UserCreate, db: Session = Depends(get_db)):
+    # 1. Check karein user pehle se to nahi hai
+    user = db.query(models.User).filter(models.User.email == user_data.email).first()
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
     
-    # Password Hash karein
-    hashed_password = security.get_password_hash(form_data.password)
+    # 2. Password Hash karein (security file se)
+    hashed_password = security.get_password_hash(user_data.password)
     
-    # User Save karein (email = form_data.username)
-    new_user = models.User(email=form_data.username, password_hash=hashed_password)
+    # 3. User save karein
+    new_user = models.User(email=user_data.email, password_hash=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
     return {"message": "User created successfully"}
 
-@router.post("/login")
+# 👇 LOGIN: Yeh Form Data hi lega (Standard OAuth2)
+@router.post("/login", response_model=models.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
     
