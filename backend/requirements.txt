@@ -2,7 +2,7 @@ fastapi
 uvicorn
 sqlmodel
 psycopg2-binary
-python-multipart  <-- YEH SAB SE ZAROORI HAI
+python-multipart  
 python-dotenv
 google-generativeai
 python-jose[cryptography]
