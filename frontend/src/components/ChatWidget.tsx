@@ -53,7 +53,7 @@ const ChatWidget: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('/api/proxy/chat', 
+      const response = await axios.post(`${API_BASE_URL}/chat`, // ✅ /api hata diya, 
         { message: input },
         {
           headers: {
