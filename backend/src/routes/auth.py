@@ -7,30 +7,28 @@ router = APIRouter(tags=["auth"])
 
 @router.post("/signup")
 async def signup(request: Request, db: Session = Depends(get_db)):
-    # 1. Data Receive (Magic Way: JSON or Form)
+    # 1. Data Receive (Smart Way)
     try:
-        body = await request.json()
+        body = await request.json() # Pehle JSON try karein
     except:
         try:
-            form = await request.form()
+            form = await request.form() # Phir Form try karein
             body = dict(form)
         except:
             raise HTTPException(status_code=422, detail="Invalid data format")
 
     # 2. Email/Username Extraction
-    # Frontend 'email' bhej raha hai, hum wo utha lenge
     email = body.get("email") or body.get("username")
     password = body.get("password")
 
     if not email or not password:
         raise HTTPException(status_code=422, detail="Email or Password missing")
 
-    # 3. Check Existing User
+    # 3. Check & Create
     user = db.query(models.User).filter(models.User.email == email).first()
     if user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # 4. Create User
     hashed_password = security.get_password_hash(password)
     new_user = models.User(email=email, password_hash=hashed_password)
     db.add(new_user)
@@ -41,7 +39,6 @@ async def signup(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=models.Token)
 async def login(request: Request, db: Session = Depends(get_db)):
-    # Login ke liye bhi same Magic Logic
     try:
         body = await request.json()
     except:
