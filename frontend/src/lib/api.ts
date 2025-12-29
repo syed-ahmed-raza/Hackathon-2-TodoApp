@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -6,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json', // ✅ Default JSON
   },
 });
 
@@ -18,27 +17,20 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// 👇 FIX: Ab hum clean JSON bhej rahe hain (No URLSearchParams)
 export const signup = (data: any) => {
-    const params = new URLSearchParams();
-    params.append('username', data.email);
-    params.append('password', data.password);
-
-    return apiClient.post('/auth/signup', params, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+    return apiClient.post('/auth/signup', {
+        email: data.email,
+        password: data.password,
+        username: data.email // Backend compatibility ke liye dono bhej diye
     });
 };
 
 export const login = (data: any) => {
-    const params = new URLSearchParams();
-    params.append('username', data.email);
-    params.append('password', data.password);
-
-    return apiClient.post('/auth/login', params, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+    return apiClient.post('/auth/login', {
+        email: data.email,
+        password: data.password,
+        username: data.email
     });
 };
 
