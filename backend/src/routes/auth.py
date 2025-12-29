@@ -4,8 +4,8 @@ from sqlmodel import Session
 import auth, models
 from database import get_db, create_db_and_tables
 
+# ✅ FIX: Prefix hata diya gaya hai kyunke main.py wo sambhal raha hai
 router = APIRouter(
-    prefix="/auth",
     tags=["auth"],
 )
 

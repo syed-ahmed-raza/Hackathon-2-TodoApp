@@ -12,12 +12,15 @@ from crud import create_task, get_tasks, delete_task, get_recent_task_by_title, 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+# ✅ FIX: Router simple rakha hai (Prefix main.py sambhal raha hai)
 router = APIRouter()
 
 class ChatRequest(BaseModel):
     message: str
 
-@router.post("/api/chat")
+# ✅ FIX: "/api/chat" hata kar sirf "/" kar diya. 
+# Ab final URL banega: POST /chat
+@router.post("/") 
 async def chat_agent(
     request: ChatRequest,
     db: Session = Depends(get_db),
@@ -26,22 +29,16 @@ async def chat_agent(
     # --- Tool Definitions ---
     def add_my_task(title: str, description: str = ""):
         """Adds a new task to the user's list with an optional description. Be concise."""
-        # Clean and normalize the new title for comparison
         cleaned_new_title = title.strip().lower()
-
-        # Fetch all existing tasks for the current user
         existing_tasks = get_tasks(db, current_user_id)
         
-        # Check if a task with the exact same title (case-insensitive, trimmed) already exists
         for task in existing_tasks:
             if task.title.strip().lower() == cleaned_new_title:
                 return "Info: A task with this name already exists."
         
-        # Original check for recently created tasks (within 2 seconds)
         if get_recent_task_by_title(db, title, current_user_id):
             return "Info: A task with this name already exists."
         
-        # Use the provided description or an empty string if none
         final_description = description if description else ""
         create_task(db, title, final_description, current_user_id)
         return "Success: Task added."
@@ -50,7 +47,6 @@ async def chat_agent(
         """Deletes a task by its ID or a case-insensitive name search."""
         try:
             task_id = int(task_identifier)
-            # We need to find the task to get its title before deleting
             tasks = get_tasks(db, current_user_id)
             task_to_delete = next((task for task in tasks if task.id == task_id), None)
             
@@ -61,17 +57,14 @@ async def chat_agent(
             else:
                 return f"Could not find a task with ID '{task_identifier}'."
         except ValueError:
-            # It's a string, so search by name
             tasks = get_tasks(db, current_user_id)
             task_to_delete = None
             
-            # First, try for an exact case-insensitive match
             for task in tasks:
                 if task.title.strip().lower() == task_identifier.strip().lower():
                     task_to_delete = task
                     break
             
-            # If no exact match, try for a partial case-insensitive match
             if not task_to_delete:
                 for task in tasks:
                     if task_identifier.strip().lower() in task.title.strip().lower():
@@ -93,28 +86,18 @@ async def chat_agent(
         return "\n".join([f"- {t.title} (ID: {t.id}, Status: {'Completed' if t.completed else 'Pending'})" for t in tasks])
 
     def update_my_task(task_identifier: str, title: str = None, description: str = None, is_completed: bool = None):
-        """
-        Updates a task's title, description, or status (completed).
-        Args:
-            task_identifier: The Task ID (int) or Task Name (str).
-            title: New title (optional).
-            description: New description (optional).
-            is_completed: True to mark as Done, False for Pending (optional).
-        """
+        """Updates a task's title, description, or status (completed)."""
         task_to_update = None
         try:
             task_id = int(task_identifier)
             tasks = get_tasks(db, current_user_id)
             task_to_update = next((task for task in tasks if task.id == task_id), None)
         except ValueError:
-            # Search by name
             tasks = get_tasks(db, current_user_id)
-            # Prioritize exact match
             for task in tasks:
                 if task.title.strip().lower() == task_identifier.strip().lower():
                     task_to_update = task
                     break
-            # Fallback to partial match if no exact match
             if not task_to_update:
                 for task in tasks:
                     if task_identifier.strip().lower() in task.title.strip().lower():
@@ -148,13 +131,13 @@ async def chat_agent(
    - **Adding:** Call `add_my_task` first. Then say: "Done! ✅ I've added '[Task Name]'."
    - **Deleting:** Call `delete_my_task` with the NAME. Then say: "Deleted '[Task Name]' 🗑️."
    - **Listing:** Call `get_my_tasks`.
-   - **Updating (Renaming/Completing):** Call `update_my_task` with the task name or ID, and the new title, description, or `is_completed` status. Example for renaming: "Updated 'Old Task' to 'New Task' ✏️." Example for completing: "Task 'My Task' marked as completed! 🎉"
-4. **Error Handling:** If a task isn't found, be kind. Example: "Oops! 😅 I couldn't find a task with that name."
-   - If the tool returns 'Info: A task with this name already exists', tell the user nicely that the task is already on their list (in their preferred language).
+   - **Updating (Renaming/Completing):** Call `update_my_task` with the task name or ID, and the new title, description, or `is_completed` status.
+4. **Filters:** - If user asks for "Pending" tasks, look at the status in `get_my_tasks` and only show pending ones.
+   - If user asks for "Completed" tasks, only show completed ones.
 
 **Tools:**
 - Use `add_my_task`, `delete_my_task`, `get_my_tasks`, and `update_my_task`.
-- Never ask for an ID; handle deletions or updates by name if possible."""
+"""
     
     available_models = []
     try:
@@ -165,7 +148,6 @@ async def chat_agent(
         print(f"🚨 Could not fetch model list from API. Falling back to default list. Error: {e}")
         available_models = ["models/gemini-1.5-flash-latest", "models/gemini-1.5-pro-latest", "models/gemini-pro"]
 
-    # Sort models to prioritize newer versions
     def sort_key(model_name):
         if 'gemini-2.0' in model_name: return 0
         if 'gemini-1.5' in model_name: return 1

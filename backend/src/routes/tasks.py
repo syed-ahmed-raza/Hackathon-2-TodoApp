@@ -5,8 +5,9 @@ import models
 from auth import get_current_user
 from database import get_db
 
+# ✅ FIX: Prefix hata diya gaya hai.
+# Dependencies wahin rakhi hain taake bina login koi tasks na dekh sake.
 router = APIRouter(
-    prefix="/tasks",
     tags=["tasks"],
     dependencies=[Depends(get_current_user)]
 )
