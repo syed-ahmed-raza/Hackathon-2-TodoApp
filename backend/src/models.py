@@ -2,22 +2,25 @@ from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 
-# ✅ FIX: Flexible Model (Email ya Username dono chalega)
+# Signup Data (Flexible)
 class UserCreate(SQLModel):
     email: Optional[str] = None
     username: Optional[str] = None
     password: str
 
+# Login Token
 class Token(SQLModel):
     access_token: str
     token_type: str
 
+# User Table
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, unique=True)
     password_hash: str
     tasks: List["Task"] = Relationship(back_populates="user")
 
+# Task Table
 class Task(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str = Field(index=True)

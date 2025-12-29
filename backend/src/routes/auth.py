@@ -7,36 +7,28 @@ router = APIRouter(tags=["auth"])
 
 @router.post("/signup")
 async def signup(request: Request, db: Session = Depends(get_db)):
-    # 1. Data Receive Karein (JSON ya Form Data, jo bhi ho)
+    # 1. Smart Data Extraction (JSON ya Form)
     try:
-        body = await request.json() # Pehle JSON try karein
+        body = await request.json()
     except:
         try:
-            form = await request.form() # Agar JSON nahi, to Form try karein
+            form = await request.form()
             body = dict(form)
         except:
             raise HTTPException(status_code=422, detail="Invalid data format")
 
-    # 2. Email aur Password nikalein (Smart Search)
-    # Frontend shayad 'email' bhej raha hai ya 'username', hum dono check karenge
+    # 2. Get Email/Username
     email = body.get("email") or body.get("username")
     password = body.get("password")
 
-    # 3. Validation
-    if not email:
-        raise HTTPException(status_code=422, detail="Email field is missing in request body")
-    if not password:
-        raise HTTPException(status_code=422, detail="Password field is missing in request body")
+    if not email or not password:
+        raise HTTPException(status_code=422, detail="Email or Password missing")
 
-    # 4. Check existing user
+    # 3. Check Existing & Create
     user = db.query(models.User).filter(models.User.email == email).first()
     if user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered",
-        )
+        raise HTTPException(status_code=400, detail="Email already registered")
     
-    # 5. Create User
     hashed_password = security.get_password_hash(password)
     new_user = models.User(email=email, password_hash=hashed_password)
     db.add(new_user)
@@ -47,7 +39,6 @@ async def signup(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=models.Token)
 async def login(request: Request, db: Session = Depends(get_db)):
-    # Login ke liye bhi same "Smart" tareeqa
     try:
         body = await request.json()
     except:
@@ -58,16 +49,12 @@ async def login(request: Request, db: Session = Depends(get_db)):
     password = body.get("password")
 
     if not email or not password:
-         raise HTTPException(status_code=422, detail="Email/Username or Password missing")
+         raise HTTPException(status_code=422, detail="Missing credentials")
 
     user = db.query(models.User).filter(models.User.email == email).first()
     
     if not user or not security.verify_password(password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise HTTPException(status_code=401, detail="Incorrect credentials")
     
     access_token = security.create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
