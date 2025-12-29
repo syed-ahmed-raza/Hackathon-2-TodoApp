@@ -2,17 +2,17 @@ from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 
-# ✅ 1. Signup ke liye Class (Frontend se yehi JSON aayega)
+# ✅ YEH HAI FIX: Signup ke liye JSON Model
 class UserCreate(SQLModel):
     email: str
     password: str
 
-# ✅ 2. Token ke liye Class (Login response ke liye)
+# Login Token Response
 class Token(SQLModel):
     access_token: str
     token_type: str
 
-# ✅ 3. Database Table: User
+# Database Table: User
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(index=True, unique=True)
@@ -20,7 +20,7 @@ class User(SQLModel, table=True):
 
     tasks: List["Task"] = Relationship(back_populates="user")
 
-# ✅ 4. Database Table: Task
+# Database Table: Task
 class Task(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str = Field(index=True)

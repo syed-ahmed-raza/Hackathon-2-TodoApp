@@ -1,17 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
-import security, models  # ✅ Humne security.py use kiya hai
+import security, models
 from database import get_db
 
-router = APIRouter(
-    tags=["auth"],
-)
+router = APIRouter(tags=["auth"])
 
-# 👇 SIGNUP: Ab yeh JSON accept karega (Fixed 422 Error)
+# 👇 SIGNUP FIX: Ab ye JSON data (UserCreate) accept karega -> 422 Error Khatam!
 @router.post("/signup")
 def signup(user_data: models.UserCreate, db: Session = Depends(get_db)):
-    # 1. Check karein user pehle se to nahi hai
+    # 1. Check user
     user = db.query(models.User).filter(models.User.email == user_data.email).first()
     if user:
         raise HTTPException(
@@ -19,10 +17,10 @@ def signup(user_data: models.UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered",
         )
     
-    # 2. Password Hash karein (security file se)
+    # 2. Hash Password
     hashed_password = security.get_password_hash(user_data.password)
     
-    # 3. User save karein
+    # 3. Create User
     new_user = models.User(email=user_data.email, password_hash=hashed_password)
     db.add(new_user)
     db.commit()
@@ -30,7 +28,7 @@ def signup(user_data: models.UserCreate, db: Session = Depends(get_db)):
 
     return {"message": "User created successfully"}
 
-# 👇 LOGIN: Yeh Form Data hi lega (Standard OAuth2)
+# Login Form Data hi rahega (Standard)
 @router.post("/login", response_model=models.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
