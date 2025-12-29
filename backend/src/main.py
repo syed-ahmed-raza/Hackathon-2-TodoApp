@@ -8,14 +8,13 @@ load_dotenv()
 
 app = FastAPI()
 
-# 👇 FINAL CORS SOLUTION: Regex use karein
-# Yeh Vercel ke kisi bhi domain ko allow karega (e.g. hackathon-2-todo-xyz.vercel.app)
-# Wildcard '*' credentials ke saath mana hai, isliye regex zaroori hai.
+# 👇 FINAL FIX: Regex use kar rahe hain taake Vercel ke sare domains allow hon
+# '*' aur allow_credentials=True ek saath illegal hain, isliye regex zaroori hai.
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex="https://.*\.vercel\.app", 
-    allow_origins=["http://localhost:3000"], # Localhost bhi allow rahega
-    allow_credentials=True,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Vercel ke sab links allow
+    allow_origins=["http://localhost:3000"],      # Localhost allow
+    allow_credentials=True,                       # Cookies/Tokens allow
     allow_methods=["*"],
     allow_headers=["*"],
 )

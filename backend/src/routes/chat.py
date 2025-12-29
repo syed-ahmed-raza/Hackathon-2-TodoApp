@@ -16,14 +16,14 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     message: str
 
-# 👇 FIX: "/" hata kar "" kar diya taake /chat URL direct kaam kare
+# 👇 FIX: Empty string ("") taake URL /chat bane, na ke /chat/
 @router.post("") 
 async def chat_agent(
     request: ChatRequest,
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id)
 ):
-    # ... (Baaki poora logic same rahega) ...
+    
     
     # Tool Definitions (Yahan paste karne ki zaroorat nahi, aapka purana code theek hai)
     # Bas upar wala @router.post("") change zaroori hai.
