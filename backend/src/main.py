@@ -5,15 +5,20 @@ from dotenv import load_dotenv
 from routes import auth, tasks, chat
 from database import create_db_and_tables
 
-# Environment variables load karein
 load_dotenv()
 
 app = FastAPI()
 
-# CORS Fix: Taake Vercel (Frontend) aur Render (Backend) aapas mein baat kar sakein
+# 👇 YEH HAI FIX: Vercel ka exact URL list mein dalein
+origins = [
+    "*", # Testing ke liye sab allowed
+    "https://hackathon-2-todo-acwvp8t2c-syed-ahmed-razas-projects.vercel.app", # Aapka Vercel URL
+    "https://hackathon-2-todoapp.vercel.app" # Backup main URL
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Production mein ise specific Vercel URL par set karna behtar hai
+    allow_origins=origins, # Updated origins list
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,10 +26,9 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    # Database tables create karein
     create_db_and_tables()
 
-# Routes Fix: Prefix aur Tags add kiye hain taake frontend calls (/auth, /tasks) sahi se kaam karein
+# Routes setup
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 app.include_router(chat.router, prefix="/chat", tags=["chat"])
