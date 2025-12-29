@@ -2,11 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 import models
-from auth import get_current_user
+# 👇 FIX: 'auth' ki jagah 'security' kar diya (Kyunke file rename ho chuki hai)
+from security import get_current_user 
 from database import get_db
 
-# ✅ FIX: Prefix hata diya gaya hai.
-# Dependencies wahin rakhi hain taake bina login koi tasks na dekh sake.
+# ✅ Router setup bilkul theek hai (Prefix main.py sambhal raha hai)
 router = APIRouter(
     tags=["tasks"],
     dependencies=[Depends(get_current_user)]
