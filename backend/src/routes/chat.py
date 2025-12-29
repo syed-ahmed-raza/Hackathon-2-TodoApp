@@ -16,23 +16,23 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     message: str
 
-# 👇 Yeh System Instruction Chatbot ki "Shakhsiyat" (Personality) hai
+# 👇 Language & Personality Settings
 SYSTEM_INSTRUCTION = """
-You are a highly intelligent, friendly, and cheerful AI Task Assistant. 🤖✨
+You are a smart and helpful AI Task Assistant for a Todo App. 🤖
 
-**Your Core Personality:**
-1.  **Warm & Polite:** Always reply with kindness. If the user says "Salam" or "Assalam-o-Alaikum", reply with "Walaikum Assalam! 🌸 Kese hain aap?". If they say "Hi", reply enthusiastically.
-2.  **Emoji Lover:** Use emojis frequently to make the conversation lively (e.g., ✅ for done, 🗑️ for deleted, 📝 for lists).
-3.  **Language Adaptability:** If the user speaks in **Roman Urdu/Hindi** (e.g., "Task add kardo"), you MUST reply in **Roman Urdu** (e.g., "Ji zaroor! Task add kar diya hai ✅"). If they speak English, reply in English.
-4.  **Smart Helper:** Don't just act like a robot. If the user says "I need to buy milk", understand that this is a task and ask if they want to add it, or just add it and confirm.
+**LANGUAGE RULES (CRITICAL):**
+1.  **DEFAULT:** Always reply in **ENGLISH** by default.
+2.  **ADAPTABILITY:** If (and ONLY if) the user speaks in **Roman Urdu** or **Hindi** (e.g., "Kaise ho?", "Task add kardo"), then you **MUST** switch to **Roman Urdu**.
+    - User: "Add a task to buy milk." -> You: "Done! I've added the task 'Buy milk' ✅."
+    - User: "Doodh lane ka task add karo." -> You: "Ji zaroor! 'Doodh lana' task add kar diya hai ✅."
 
-**Your Capabilities (Tools):**
-- You have access to tools to `add_my_task`, `delete_my_task`, `get_my_tasks`, and `update_my_task`.
-- **CRITICAL:** You MUST call the function/tool to perform the action on the database. Do not just say "I did it" without actually calling the tool.
+**Personality:**
+- Be friendly, professional, and concise.
+- Use emojis to make the chat lively (✅, 📝, 🗑️).
 
-**Response Style:**
-- Keep responses concise but friendly.
-- When listing tasks, use bullet points.
+**Your Tools:**
+- You can Add, Delete, View, and Update tasks.
+- You MUST call the tool/function to perform the action. Do not just say you did it.
 """
 
 @router.post("") 
@@ -41,21 +41,18 @@ async def chat_agent(
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id)
 ):
-    # --- Tool Definitions (Database Actions) ---
+    # --- Tool Definitions ---
     def add_my_task(title: str, description: str = ""):
-        """Adds a new task. Example: 'Add buy milk'."""
         cleaned_new_title = title.strip().lower()
         existing_tasks = get_tasks(db, current_user_id)
         for task in existing_tasks:
             if task.title.strip().lower() == cleaned_new_title:
-                return "Info: Yeh task pehle se list mein hai! 😅"
-        
+                return "Info: Task already exists."
         final_description = description if description else ""
         create_task(db, title, final_description, current_user_id)
-        return f"Done! ✅ Task '{title}' add kar diya gaya hai."
+        return f"Success: Task '{title}' added ✅."
 
     def delete_my_task(task_identifier: str):
-        """Deletes a task by ID or Name."""
         try:
             task_id = int(task_identifier)
             tasks = get_tasks(db, current_user_id)
@@ -63,38 +60,33 @@ async def chat_agent(
             if task_to_delete and task_to_delete.user_id == current_user_id:
                 title = task_to_delete.title
                 delete_task(db, task_id, current_user_id)
-                return f"Samjho gaya! 🗑️ Task '{title}' delete kar diya."
-            else:
-                return f"Mujhe ID '{task_identifier}' wala koi task nahi mila. 🧐"
+                return f"Success: Deleted '{title}' 🗑️."
         except ValueError:
-            # Name se delete karna
             tasks = get_tasks(db, current_user_id)
             task_to_delete = None
             for task in tasks:
                 if task.title.strip().lower() == task_identifier.strip().lower():
-                    task_to_delete = task
+                    task_to_update = task
                     break
-            
+            if not task_to_delete:
+                 for task in tasks:
+                    if task_identifier.strip().lower() in task.title.strip().lower():
+                        task_to_delete = task
+                        break
             if task_to_delete:
                 title = task_to_delete.title
                 delete_task(db, task_to_delete.id, current_user_id)
-                return f"Ho gaya! 🗑️ Task '{title}' delete kar diya."
-            else:
-                return f"Mujhe '{task_identifier}' naam ka koi task nahi mila. Spelling check karein? 🤔"
+                return f"Success: Deleted '{title}' 🗑️."
+            return f"Error: Task '{task_identifier}' not found."
 
     def get_my_tasks():
-        """Gets all tasks."""
         tasks = get_tasks(db, current_user_id)
         if not tasks:
-            return "Aapki list bilkul khaali hai! 🎈 Koi kaam add karein?"
-        
-        task_list = "\n".join([f"- **{t.title}** (ID: {t.id}) {'✅' if t.completed else '⏳'}" for t in tasks])
-        return f"Yeh rahi aapki tasks list:\n\n{task_list}"
+            return "Your task list is empty."
+        return "\n".join([f"- {t.title} (ID: {t.id}) {'✅' if t.completed else '⏳'}" for t in tasks])
 
     def update_my_task(task_identifier: str, title: str = None, description: str = None, is_completed: bool = None):
-        """Updates a task (mark as done, rename, etc)."""
         task_to_update = None
-        # Logic to find task by ID or Name
         try:
             task_id = int(task_identifier)
             tasks = get_tasks(db, current_user_id)
@@ -107,33 +99,42 @@ async def chat_agent(
                     break
         
         if task_to_update:
-            updated = update_task(db, task_to_update.id, current_user_id, is_completed, title, description)
-            if updated:
-                status_msg = "complete kar diya ✅" if is_completed else "update kar diya 📝"
-                return f"Set hai! Task '{updated.title}' ko {status_msg}."
-            else:
-                return "Oops! Update mein kuch masla hua. ❌"
-        else:
-            return "Mujhe yeh task nahi mila. 🤷‍♂️"
+            update_task(db, task_to_update.id, current_user_id, is_completed, title, description)
+            return f"Success: Task updated ✅."
+        return "Error: Task not found."
 
-    # --- Gemini Setup ---
     tools = [add_my_task, get_my_tasks, delete_my_task, update_my_task]
     
-    # Model selection with Fallback
-    available_models = ["models/gemini-1.5-flash-latest", "models/gemini-1.5-pro-latest", "models/gemini-pro"]
+    # 👇 SMART MODEL SELECTION (No more guessing)
+    # Hum pehle standard models try karenge, agar wo nahi chale to API se pochenge
+    model_list = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
     
-    for model_name in available_models:
+    # Koshish karein ke live models bhi list kar lein (Agar API allow kare)
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                name = m.name.replace("models/", "")
+                if name not in model_list:
+                    model_list.append(name)
+    except:
+        pass # Agar list_models fail ho jaye (permission issue), to standard list use karein
+
+    last_error = "No models available"
+
+    # Jo bhi pehla chal jaye, wo winner 🏆
+    for model_name in model_list:
         try:
             model = genai.GenerativeModel(
                 model_name=model_name, 
                 tools=tools, 
-                system_instruction=SYSTEM_INSTRUCTION # 👈 The Personality Injection
+                system_instruction=SYSTEM_INSTRUCTION
             )
             chat = model.start_chat(enable_automatic_function_calling=True)
             response = chat.send_message(request.message)
-            return response.text
+            return response.text # Agar success, to yahi return kardo aur loop khatam
         except Exception as e:
-            print(f"Model {model_name} failed: {e}")
-            continue
+            last_error = str(e)
+            continue # Agar fail, to agla model try karo
     
-    return "Maazrat! Mere systems abhi thore busy hain. Thodi der baad try karein? 🤖💤"
+    # Agar sab fail ho jayen
+    return f"Sorry, I am having trouble connecting to AI. Error: {last_error}"
