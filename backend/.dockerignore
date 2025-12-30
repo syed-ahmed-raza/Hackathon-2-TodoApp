@@ -1,0 +1,12 @@
+# Ignore Python cache files
+__pycache__/
+
+# Ignore virtual environment
+.venv/
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore test database
+test.db

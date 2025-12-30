@@ -1,0 +1,29 @@
+# Default values for todo-chatbot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+backend:
+  replicaCount: 1
+  image:
+    repository: todo-backend
+    tag: v1
+    pullPolicy: Never
+  service:
+    port: 8000
+    type: ClusterIP
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: todo-frontend
+    tag: v1
+    pullPolicy: Never
+  service:
+    port: 3000
+    type: NodePort
+
+# Secrets for the application
+# These should be overridden in a separate values file or with --set
+secrets:
+  databaseUrl: ""
+  geminiApiKey: ""

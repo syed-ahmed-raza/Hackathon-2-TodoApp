@@ -1,0 +1,12 @@
+# Ignore Node.js modules
+node_modules
+
+# Ignore Next.js build artifacts
+.next
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore local environment files
+.env.local
